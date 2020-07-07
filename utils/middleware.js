@@ -15,6 +15,8 @@ const unknownEndpoint = (request, response) => {
 const errorHandler = (error, request, response, next) => {
   logger.error(error.message)
 
+  // TODO add error handling like CastError and ValidationError
+
   next(error)
 }
 
