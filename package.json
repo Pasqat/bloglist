@@ -4,10 +4,10 @@
   "description": "exercise for part4 of Fullstack Open 2020 Helsinki",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js",
-    "dev": "nodemon index.js",
-    "lint": "eslint ."
+    "start": "NODE_ENV=production node index.js",
+    "dev": "NODE_ENV=development nodemon index.js",
+    "lint": "eslint .",
+    "test": "NODE_ENV=test jest --verbose --runInBand"
   },
   "author": "Pasquale Matarrese",
   "license": "ISC",
@@ -19,6 +19,7 @@
   },
   "devDependencies": {
     "eslint": "^7.4.0",
+    "jest": "^26.1.0",
     "nodemon": "^2.0.4"
   }
 }
