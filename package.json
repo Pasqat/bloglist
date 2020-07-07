@@ -1,0 +1,24 @@
+{
+  "name": "bloglist",
+  "version": "1.0.0",
+  "description": "exercise for part4 of Fullstack Open 2020 Helsinki",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "lint": "eslint ."
+  },
+  "author": "Pasquale Matarrese",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "mongoose": "^5.9.22"
+  },
+  "devDependencies": {
+    "eslint": "^7.4.0",
+    "nodemon": "^2.0.4"
+  }
+}
