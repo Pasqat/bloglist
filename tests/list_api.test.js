@@ -4,6 +4,7 @@ const supertest = require('supertest')
 const app = require('../app')
 const helper = require('./test_helper')
 const Blog = require('../models/blog')
+const _ = require('lodash')
 
 const api = supertest(app)
 
@@ -121,6 +122,50 @@ describe('POST blog', () => {
 
     const titles = blogsAtEnd.map(c => c.title)
     expect(titles).toContain('Testing the DB')
+
+  })
+
+  test('likes property default to zero if missing', async () => {
+    const newBlog = {
+      title: 'Testing the DB',
+      author: 'Superuser',
+      url: 'https://fullstackopen.com/en/part4/structure_of_backend_application_introduction_to_testing#exercises-4-1-4-2',
+    }
+
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(201)
+      .expect('Content-Type', /application\/json/)
+
+    const blogsAtEnd = await helper.blogsInDb()
+    const addedBlog = blogsAtEnd.filter(blog => blog.title === 'Testing the DB')
+
+    expect(addedBlog[0].likes).toBe(0)
+  })
+
+  test('right satuts code if title and/or url properties are missing', async () => {
+    let newBlog = {
+      author: 'Superuser',
+      url: 'https://fullstackopen.com/en/part4/structure_of_backend_application_introduction_to_testing#exercises-4-1-4-2',
+      likes: 0
+    }
+
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(400)
+
+    newBlog = {
+      title: 'Testing the DB',
+      author: 'Superuser',
+      likes: 0
+    }
+
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(400)
 
   })
 
