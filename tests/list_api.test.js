@@ -171,6 +171,21 @@ describe('POST blog', () => {
 
 })
 
+describe('DELETE blog post', () => {
+  test('succeded with status 204 if id is valid', async () => {
+    const blogsAtStart = await helper.blogsInDb()
+    const blogToDelete = blogsAtStart[0]
+
+    await api
+      .delete(`/api/blogs/${blogToDelete.id}`)
+    expect(204)
+
+    const noteAtEnd = await helper.blogsInDb()
+
+    expect(noteAtEnd).toHaveLength(helper.initialBlogs.length - 1)
+  })
+})
+
 afterAll(() => {
   mongoose.connection.close()
 })
