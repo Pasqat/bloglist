@@ -105,11 +105,15 @@ describe('GET blogs post', () => {
 describe('POST blog', () => {
 
   test('a blog post is succefully added to the list', async () => {
+    const users = await helper.usersInDb()
+    const userId = users[0].id
+
     const newBlog = {
       title: 'Testing the DB',
       author: 'Superuser',
       url: 'https://fullstackopen.com/en/part4/structure_of_backend_application_introduction_to_testing#exercises-4-1-4-2',
-      likes: 0
+      likes: 0,
+      userId
     }
 
     await api
@@ -127,10 +131,14 @@ describe('POST blog', () => {
   })
 
   test('likes property default to zero if missing', async () => {
+    const users = await helper.usersInDb()
+    const userId = users[0].id
+
     const newBlog = {
       title: 'Testing the DB',
       author: 'Superuser',
       url: 'https://fullstackopen.com/en/part4/structure_of_backend_application_introduction_to_testing#exercises-4-1-4-2',
+      userId
     }
 
     await api
@@ -146,10 +154,14 @@ describe('POST blog', () => {
   })
 
   test('right satuts code if title and/or url properties are missing', async () => {
+    const users = await helper.usersInDb()
+    const userId = users[0].id
+
     let newBlog = {
       author: 'Superuser',
       url: 'https://fullstackopen.com/en/part4/structure_of_backend_application_introduction_to_testing#exercises-4-1-4-2',
-      likes: 0
+      likes: 0,
+      userId
     }
 
     await api
@@ -160,7 +172,8 @@ describe('POST blog', () => {
     newBlog = {
       title: 'Testing the DB',
       author: 'Superuser',
-      likes: 0
+      likes: 0,
+      userId
     }
 
     await api
@@ -286,7 +299,7 @@ describe('New user', () => {
     const usersAtStart = await helper.usersInDb()
 
     const newUser = {
-      username: 'rt',
+      username: 'root',
       name: 'Superuser',
       password: 'sd'
     }
@@ -297,7 +310,7 @@ describe('New user', () => {
       .expect(400)
       .expect('Content-Type', /application\/json/)
 
-    expect(result.body.error).toContain('at least 3 characters')
+    expect(result.body.error).toContain('password missing or too short')
 
     const usersAtEnd = await helper.usersInDb()
     expect(usersAtEnd).toHaveLength(usersAtStart.length)
