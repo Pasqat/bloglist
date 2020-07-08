@@ -1,10 +1,11 @@
 const listHelper = require('../utils/list_helper')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
+const bcrypt = require('bcrypt')
 const app = require('../app')
 const helper = require('./test_helper')
 const Blog = require('../models/blog')
-const _ = require('lodash')
+const User = require('../models/user')
 
 const api = supertest(app)
 
@@ -184,6 +185,40 @@ describe('DELETE blog post', () => {
 
     expect(noteAtEnd).toHaveLength(helper.initialBlogs.length - 1)
   })
+})
+
+describe('Whene there is initialli one user in db', () => {
+  beforeEach(async () => {
+    await User.deleteMany({})
+
+    const passwordHash = await bcrypt.hash('secret', 10)
+    const user = new User({ username: 'root', passwordHash })
+
+    await user.save()
+  })
+
+  test('creation succeds with a fresh username', async () => {
+    const usersAtStart = await helper.usersInDb()
+
+    const newUser = {
+      username: 'pasqat',
+      name: 'Pasquale Matarrese',
+      password: 'senzaniente'
+    }
+
+    await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(201)
+      .expect('Content-Type', /application\/json/)
+
+    const usersAtEnd = await helper.usersInDb()
+    expect(usersAtEnd).toHaveLength(usersAtStart.length + 1)
+
+    const usernames = usersAtEnd.map(u => u.username)
+    expect(usernames).toContain(newUser.username)
+  })
+
 })
 
 afterAll(() => {
