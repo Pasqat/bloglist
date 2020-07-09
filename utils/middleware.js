@@ -20,15 +20,17 @@ const errorHandler = (error, request, response, next) => {
     return response.status(400).json({ error: error.message })
   } else if (error.name === 'JsonWebTokenError') {
     return response.status(401).json({
-      error: 'invalid token'
+      error: 'invalid token',
     })
   } else if (error.name === 'CastError' && error.kind === 'ObjectId') {
-    return response.status(400).send({ error: 'malformatted id' })}
+    return response.status(400).send({ error: 'malformatted id' })
+  }
 
+  next()
 }
 
 const tokenExtractor = (request, response, next) => {
-  const getTokenFrom = request => {
+  const getTokenFrom = (request) => {
     const authorization = request.get('authorization')
     if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
       return authorization.substring(7)
@@ -45,5 +47,5 @@ module.exports = {
   requestLogger,
   unknownEndpoint,
   errorHandler,
-  tokenExtractor
+  tokenExtractor,
 }

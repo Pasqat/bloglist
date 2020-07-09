@@ -6,6 +6,8 @@ const app = require('../app')
 const helper = require('./test_helper')
 const Blog = require('../models/blog')
 const User = require('../models/user')
+require('dotenv').config()
+
 
 const api = supertest(app)
 
@@ -24,6 +26,23 @@ beforeEach(async () => {
     .map(blog => new Blog(blog))
   const promiseArray = blogObjects.map(blog => blog.save())
   await Promise.all(promiseArray)
+
+
+})
+
+let token
+beforeAll(async (done) => {
+  await api
+    .post('/api/login')
+    .send({
+      username: 'root',
+      password: 'senzaniente'
+    })
+    .end((err, response) => {
+      token = response.body.token // save the token!
+      console.log('Token:', token, 'Body:', response.body)
+      done()
+    })
 })
 
 describe('Total Likes', () => {
@@ -102,9 +121,11 @@ describe('GET blogs post', () => {
   })
 })
 
-describe('POST blog', () => {
+describe('POST blog into list', () => {
+
 
   test('a blog post is succefully added to the list', async () => {
+
     const users = await helper.usersInDb()
     const userId = users[0].id
 
@@ -118,9 +139,11 @@ describe('POST blog', () => {
 
     await api
       .post('/api/blogs')
+      .set('Authorization', `Bearer ${token}`)
       .send(newBlog)
       .expect(201)
       .expect('Content-Type', /application\/json/)
+
 
     const blogsAtEnd = await helper.blogsInDb()
     expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length + 1)
@@ -134,6 +157,15 @@ describe('POST blog', () => {
     const users = await helper.usersInDb()
     const userId = users[0].id
 
+    // let loggedInToken = ''
+    // await api
+    //   .post('/api/login')
+    //   .send({
+    //     username: 'root',
+    //     password: 'senzaniente'
+    //   })
+    //   .then((res) => loggedInToken = res.body.token)
+
     const newBlog = {
       title: 'Testing the DB',
       author: 'Superuser',
@@ -143,6 +175,7 @@ describe('POST blog', () => {
 
     await api
       .post('/api/blogs')
+      .set('Authorization', `Bearer ${token}`)
       .send(newBlog)
       .expect(201)
       .expect('Content-Type', /application\/json/)
@@ -157,6 +190,19 @@ describe('POST blog', () => {
     const users = await helper.usersInDb()
     const userId = users[0].id
 
+
+    // let loggedInToken = ''
+    // await api
+    //   .post('/api/login')
+    //   .send({
+    //     username: 'root',
+    //     password: 'senzaniente'
+    //   })
+    //   .then(res => {
+    //     console.log(res.body)
+    //     return loggedInToken = res.body.token
+    //   })
+
     let newBlog = {
       author: 'Superuser',
       url: 'https://fullstackopen.com/en/part4/structure_of_backend_application_introduction_to_testing#exercises-4-1-4-2',
@@ -166,6 +212,7 @@ describe('POST blog', () => {
 
     await api
       .post('/api/blogs')
+      .set('Authorization', `Bearer ${token}`)
       .send(newBlog)
       .expect(400)
 
@@ -178,6 +225,7 @@ describe('POST blog', () => {
 
     await api
       .post('/api/blogs')
+      .set('Authorization', `Bearer ${token}`)
       .send(newBlog)
       .expect(400)
 
@@ -190,9 +238,19 @@ describe('DELETE blog post', () => {
     const blogsAtStart = await helper.blogsInDb()
     const blogToDelete = blogsAtStart[0]
 
+    let loggedInToken = ''
+    await api
+      .post('/api/login')
+      .send({
+        username: 'root',
+        password: 'senzaniente'
+      })
+      .then((res) => loggedInToken = res.body.token)
+
     await api
       .delete(`/api/blogs/${blogToDelete.id}`)
-    expect(204)
+      .set('Authorization', `Bearer ${loggedInToken}`)
+      .expect(204)
 
     const noteAtEnd = await helper.blogsInDb()
 
